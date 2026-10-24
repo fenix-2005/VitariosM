@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 
-@Entity(tableName = "user_profile")
-data class UserProfileEntity(
+@Entity(tableName = "usuarios")
+data class Usuario(
     @PrimaryKey val id: Int = 1,
     val alias: String,
     val emailSimulado: String,
