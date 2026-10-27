@@ -3,25 +3,26 @@ package cl.duoc.vitariosm.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cl.duoc.vitariosm.model.RecursosPublicos
 import cl.duoc.vitariosm.ui.theme.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import cl.duoc.vitariosm.R
 
 @Composable
 fun OnboardingScreen(
-    onIngresarDemo: (rol: String, alias: String, fonoConfianza: String) -> Unit,
+    onIngresarDemo: (rol: String, alias: String, correo: String, fonoConfianza: String) -> Unit,
     onAyudaUrgente: () -> Unit
 ) {
     var alias by remember { mutableStateOf("") }
@@ -29,15 +30,48 @@ fun OnboardingScreen(
     var fonoConfianza by remember { mutableStateOf("+56987654321") }
     var aceptaCondiciones by remember { mutableStateOf(false) }
 
+
+    val esAliasValido = alias.trim().count { it.isLetter() } > 3
+
+
+    val dominiosPermitidos = listOf(
+        "@gmail.com", "@hotmail.com", "@outlook.com", "@yahoo.com",
+        "@duocuc.cl", "@profesor.duoc.cl", "@vitairos.cl", "@icloud.com"
+    )
+    val correoLimpio = correoSimulado.trim().lowercase()
+    val tieneUsuarioAntesDelArroba = correoLimpio.substringBefore("@").length >= 2
+    val esCorreoValido = tieneUsuarioAntesDelArroba && dominiosPermitidos.any { correoLimpio.endsWith(it) }
+
+
+    val fonoSinEspacios = fonoConfianza.trim().replace(" ", "")
+    val regexTelefonoChile = Regex("^(\\+?56)?9\\d{8}$")
+    val esFonoValido = regexTelefonoChile.matches(fonoSinEspacios)
+
+
+    val formularioValido = esAliasValido && esCorreoValido && esFonoValido && aceptaCondiciones
+
     LazyColumn(
-        modifier = Modifier.fillMaxSize().background(BlancoBase).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BlancoBase)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            Text("VITAIROS-M", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Navy)
-            Text("SALUD MENTAL DIGITAL · LA VIDA NO OCURRE SOLO EN LA SESIÓN", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Cian)
+            Image(
+                painter = painterResource(id = R.drawable.logo_vitairos),
+                contentDescription = "Logotipo oficial VITAIROS-M Salud Mental Digital",
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .heightIn(max = 90.dp),
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.CenterStart
+            )
             Spacer(Modifier.height(8.dp))
-            Text("Que pedir ayuda no signifique empezar de cero. Registra cómo te sientes y recibe un próximo paso claro.", color = Gris)
+            Text(
+                text = "Que pedir ayuda no signifique empezar de cero. Registra cómo te sientes y recibe un próximo paso claro.",
+                color = Gris
+            )
         }
 
         item {
@@ -46,7 +80,7 @@ fun OnboardingScreen(
                     Text("Límites éticos y privacidad local", fontWeight = FontWeight.Bold, color = Navy)
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        "VITAIROS-M es una herramienta de orientación y acompañamiento general. No realiza diagnósticos, no prescribe tratamientos, no entrega terapia y no reemplaza la atención de profesionales de salud. Si existe riesgo inmediato o una emergencia, busca ayuda presencial y utiliza los canales oficiales de emergencia disponibles en Chile.",
+                        text = "VITAIROS-M es una herramienta de orientación y acompañamiento general. No realiza diagnósticos, no prescribe tratamientos, no entrega terapia y no reemplaza la atención de profesionales de salud. Si existe riesgo inmediato o una emergencia, busca ayuda presencial y utiliza los canales oficiales de emergencia disponibles en Chile.",
                         fontSize = 13.sp,
                         color = Gris
                     )
@@ -55,25 +89,77 @@ fun OnboardingScreen(
         }
 
         item {
-            OutlinedTextField(value = alias, onValueChange = { alias = it }, label = { Text("Tu alias de preferencia") }, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = correoSimulado, onValueChange = { correoSimulado = it }, label = { Text("Correo simulado (Ficticio)") }, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = fonoConfianza, onValueChange = { fonoConfianza = it }, label = { Text("Teléfono contacto de confianza") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = alias,
+                onValueChange = { alias = it },
+                label = { Text("Tu alias o nombre de preferencia") },
+                isError = !esAliasValido,
+                supportingText = {
+                    if (!esAliasValido) {
+                        Text("El nombre debe tener más de 3 letras.", color = Color(0xFFB00020))
+                    } else {
+                        Text("✓ Nombre válido", color = VerdeCont)
+                    }
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = correoSimulado,
+                onValueChange = { correoSimulado = it },
+                label = { Text("Correo simulado (gmail, hotmail, duocuc, etc.)") },
+                isError = !esCorreoValido,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                supportingText = {
+                    if (!esCorreoValido) {
+                        Text("Ingresa un correo válido (ej. usuario@gmail.com o @hotmail.com).", color = Color(0xFFB00020))
+                    } else {
+                        Text("✓ Formato de correo válido", color = VerdeCont)
+                    }
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // CAMPO 3: TELÉFONO DE CONFIANZA
+            OutlinedTextField(
+                value = fonoConfianza,
+                onValueChange = { nuevoTexto ->
+                    // Solo permite escribir '+', números y espacios para evitar letras en el teléfono
+                    if (nuevoTexto.all { it.isDigit() || it == '+' || it == ' ' }) {
+                        fonoConfianza = nuevoTexto
+                    }
+                },
+                label = { Text("Teléfono contacto de confianza (+569...)") },
+                isError = !esFonoValido,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                supportingText = {
+                    if (!esFonoValido) {
+                        Text("Debe ser un número válido (ej. +56912345678 o 912345678).", color = Color(0xFFB00020))
+                    } else {
+                        Text("✓ Número de contacto válido", color = VerdeCont)
+                    }
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(checked = aceptaCondiciones, onCheckedChange = { aceptaCondiciones = it })
-                Text("Comprendo los límites éticos y acepto las condiciones de uso.", fontSize = 13.sp)
+                Text("Comprendo los límites éticos y acepto las condiciones de uso.", fontSize = 13.sp, color = Navy)
             }
         }
 
         item {
             Button(
-                onClick = { onIngresarDemo("USUARIO", alias, fonoConfianza) },
-                enabled = aceptaCondiciones,
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                onClick = { onIngresarDemo("USUARIO", alias.trim(), correoLimpio, fonoSinEspacios) },
+                enabled = formularioValido,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 shape = RoundedCornerShape(25.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AzulDigital)
             ) {
@@ -81,8 +167,8 @@ fun OnboardingScreen(
             }
             Spacer(Modifier.height(8.dp))
             OutlinedButton(
-                onClick = { onIngresarDemo("PROFESIONAL", "Ps. Martín Rojas (Demo)", fonoConfianza) },
-                enabled = aceptaCondiciones,
+                onClick = { onIngresarDemo("PROFESIONAL", "Ps. Martín Rojas (Demo)", correoLimpio, fonoSinEspacios) },
+                enabled = formularioValido,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Ingresar como Profesional de Salud (Demo)")

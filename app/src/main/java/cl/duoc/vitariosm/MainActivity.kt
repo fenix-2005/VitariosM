@@ -25,6 +25,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.vitariosm.ui.screens.*
 import cl.duoc.vitariosm.ui.theme.*
 import cl.duoc.vitariosm.viewmodel.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,10 +78,10 @@ fun VitariosAppCompleta(
     }
 
     if (usuario == null || usuario?.aceptoDisclaimerOnboarding == false) {
-        Surface(modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding() , color = BlancoBase) {
+        Surface(modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding(), color = BlancoBase) {
             OnboardingScreen(
-                onIngresarDemo = { rol, alias, fono ->
-                    usuarioVM.ingresarComoDemo(rol, alias, fono)
+                onIngresarDemo = { rol, alias, correo, fono ->
+                    usuarioVM.ingresarComoDemo(rol, alias, correo, fono)
                     pantallaActual = if (rol == "PROFESIONAL") "PROFESIONAL_DEMO" else "HOME"
                 },
                 onAyudaUrgente = { usuarioVM.activarAlertaManual() }
@@ -94,52 +97,20 @@ fun VitariosAppCompleta(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    Brush.linearGradient(
-                                        listOf(VerdeCont, CianConexion, AzulDigital)
-                                    )
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Spa,
-                                contentDescription = "Isotipo VITAIROS-M",
-                                tint = BlancoBase,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-                        Spacer(Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                text = buildAnnotatedString {
-                                    withStyle(SpanStyle(color = Navy, fontWeight = FontWeight.ExtraBold)) {
-                                        append("VITAIROS-")
-                                    }
-                                    withStyle(SpanStyle(color = VerdeCont, fontWeight = FontWeight.ExtraBold)) {
-                                        append("M")
-                                    }
-                                },
-                                fontSize = 21.sp
-                            )
-                            Text(
-                                text = "SALUD MENTAL DIGITAL",
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = CianConexion,
-                                letterSpacing = 1.sp
-                            )
-                        }
-                    }
+                    // Logotipo oficial como pieza gráfica cerrada (sin textos reconstruidos ni recortes)
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_vitairos),
+                        contentDescription = "Logotipo oficial VITAIROS-M",
+                        modifier = Modifier
+                            .height(44.dp)
+                            .weight(1f, fill = false),
+                        contentScale = ContentScale.Fit,
+                        alignment = Alignment.CenterStart
+                    )
 
                     // Acciones: Ayuda urgente + Botón Logout (Cerrar sesión)
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -149,7 +120,12 @@ fun VitariosAppCompleta(
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                             modifier = Modifier.height(36.dp)
                         ) {
-                            Icon(Icons.Default.Emergency, contentDescription = null, tint = Color(0xFFB00020), modifier = Modifier.size(16.dp))
+                            Icon(
+                                imageVector = Icons.Default.Emergency,
+                                contentDescription = null,
+                                tint = Color(0xFFB00020),
+                                modifier = Modifier.size(16.dp)
+                            )
                             Spacer(Modifier.width(4.dp))
                             Text("Ayuda", color = Color(0xFFB00020), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }

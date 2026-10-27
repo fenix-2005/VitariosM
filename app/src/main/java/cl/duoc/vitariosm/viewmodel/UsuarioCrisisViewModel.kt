@@ -41,12 +41,12 @@ class UsuarioCrisisViewModel(application: Application) : AndroidViewModel(applic
         alertaCrisisActiva.value = false
     }
 
-    fun ingresarComoDemo(rol: String, alias: String, telefonoConfianza: String) {
+    fun ingresarComoDemo(rol: String, alias: String, correo: String, telefonoConfianza: String) {
         viewModelScope.launch {
             val nuevo = Usuario(
                 id = 1,
                 alias = alias.ifBlank { "Usuario Demo" },
-                emailSimulado = if (rol == "PROFESIONAL") "profesional.demo@gmail.com" else "usuario.demo@gmail.com",
+                emailSimulado = correo.ifBlank { "usuario.demo@gmail.com" },
                 rol = rol,
                 telefonoContactoConfianza = telefonoConfianza.ifBlank { "+56912345678" },
                 aceptoDisclaimerOnboarding = true
