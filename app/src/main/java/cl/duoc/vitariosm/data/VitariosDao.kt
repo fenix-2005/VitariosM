@@ -21,6 +21,9 @@ interface VitariosDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun guardarUsuario(usuario: Usuario)
 
+    @Query("DELETE FROM usuarios")
+    suspend fun cerrarSesionUsuario()
+
     // --- CHECK-IN EMOCIONAL Y RECORDATORIOS (BITÁCORA) ---
     @Query("SELECT * FROM checkins_recordatorios ORDER BY id DESC")
     fun obtenerRecordatoriosCheckIn(): Flow<List<Recoradatorio>>
@@ -43,6 +46,9 @@ interface VitariosDao {
 
     @Update
     suspend fun actualizarCita(cita: Citas)
+
+    @Delete
+    suspend fun eliminarCita(cita: Citas)
 
     // --- RECURSOS PÚBLICOS ---
     @Query("SELECT * FROM recursos_publicos ORDER BY id ASC")

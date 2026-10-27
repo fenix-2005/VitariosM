@@ -24,8 +24,8 @@ fun OnboardingScreen(
     onIngresarDemo: (rol: String, alias: String, fonoConfianza: String) -> Unit,
     onAyudaUrgente: () -> Unit
 ) {
-    var alias by remember { mutableStateOf("Javier Demo") }
-    var correoSimulado by remember { mutableStateOf("usuario.demo@vitairos.cl") }
+    var alias by remember { mutableStateOf("") }
+    var correoSimulado by remember { mutableStateOf("") }
     var fonoConfianza by remember { mutableStateOf("+56987654321") }
     var aceptaCondiciones by remember { mutableStateOf(false) }
 

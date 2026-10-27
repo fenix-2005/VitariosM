@@ -53,4 +53,9 @@ class CitasViewModel(application: Application) : AndroidViewModel(application) {
             dao.actualizarCita(cita.copy(status = nuevoEstado, dateTimeSlot = nuevoHorario))
         }
     }
+    fun eliminarCita(cita: Citas) {
+        viewModelScope.launch {
+            dao.eliminarCita(cita)
+        }
+    }
 }

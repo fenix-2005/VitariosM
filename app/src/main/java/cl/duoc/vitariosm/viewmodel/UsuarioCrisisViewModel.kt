@@ -54,4 +54,9 @@ class UsuarioCrisisViewModel(application: Application) : AndroidViewModel(applic
             dao.guardarUsuario(nuevo)
         }
     }
+    fun cerrarSesion() {
+        viewModelScope.launch {
+            dao.cerrarSesionUsuario()
+        }
+    }
 }
